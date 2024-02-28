@@ -19,8 +19,10 @@ export class Auth {
   gender: Gender;
   @Prop({ enum: Role, default: Role.USER })
   role: Role;
-  @Prop()
+  @Prop({default:false})
   isVerified:boolean
+  @Prop({default:true})
+  isActive:boolean
 }
 
 export const AuthSchema = SchemaFactory.createForClass(Auth);

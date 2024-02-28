@@ -1,10 +1,10 @@
 import { Controller, Get, UseGuards, Request } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/core/guard/jwt-auth.guard';
-import { UserProfileService } from '../services/user-profile.service';
+import { ProfileService } from '../services/profile.service';
 
 @Controller('')
 export default class ProfileController {
-  constructor(private userProfileService: UserProfileService) {}
+  constructor(private ProfileService: ProfileService) {}
 
   @UseGuards(JwtAuthGuard)
   @Get('')

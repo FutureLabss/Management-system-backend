@@ -1,10 +1,26 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { AuthModule } from './all_modules/authentication/module/auth.module';
+import { AttendanceModule } from './all_modules/attendance/module/attendance.module';
+import { BiometricModule } from './all_modules/biometric/module/biometric.module';
+import { ConfigModule } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
+import { ProfileModule } from './all_modules/profile/module/profile.module';
+import { AdminProfileModule } from './all_modules/profile/module/admin-profile.module';
+import routes from './route';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    ConfigModule.forRoot({
+      envFilePath: '.env',
+      isGlobal: true,
+    }),
+    MongooseModule.forRoot(process.env.MONGODBURI ),
+    AuthModule,
+    AttendanceModule,
+    BiometricModule,
+    AdminProfileModule,
+    ProfileModule,
+    routes
+  ],
 })
 export class AppModule {}

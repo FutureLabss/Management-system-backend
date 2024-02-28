@@ -1,6 +1,6 @@
 export enum Status {
   ACTIVE = 'active',
-  INACTIVE = 'In active',
+  INACTIVE = 'InActive',
 }
 export enum UserTypeSelection {
   TRAINEE = 'trainee',

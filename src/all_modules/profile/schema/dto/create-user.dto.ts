@@ -16,9 +16,6 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsEmail()
   readonly email: string;
-  @MinLength(6)
-  @MaxLength(15)
-  readonly password?: string;
   @IsNotEmpty()
   readonly phoneNumber: number;
   @IsNotEmpty()
@@ -26,3 +23,4 @@ export class CreateUserDto {
   @IsEnum(Gender)
   readonly gender: Gender;
 }
+

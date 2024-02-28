@@ -5,13 +5,14 @@ import { AuthResponse, AuthUser } from 'src/all_modules/authentication/schema/en
 import { AdminProfileService } from '../services/admin-profile.service';
 import { UpdateUserDto } from '../schema/dto/update-user.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('')
 export default class AdminProfileController {
   constructor(private adminProfileService: AdminProfileService) {}
 
 
-  @UseGuards(JwtAuthGuard)
-  @Post()
+  // @UseGuards(JwtAuthGuard)
+  @Post("register")
   async register(
     @Body()
     createUserDto: CreateUserDto,
@@ -19,7 +20,6 @@ export default class AdminProfileController {
     return this.adminProfileService.register(createUserDto);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('allUsers')
   getProfile(@Request() req):Promise<AuthUser[]> {
     return this.adminProfileService.getAllUsers();
@@ -30,15 +30,14 @@ export default class AdminProfileController {
   editUserProfile(@Request() req,
    @Body() updateData:UpdateUserDto 
   ):Promise<AuthUser>{
-    const user = req.user;
-    return this.adminProfileService.updateUserProfile(user.id, updateData);
+    const userId = req.params.id;
+    return this.adminProfileService.updateUserProfile(userId, updateData);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete('delete/:id')
   deleteUser(@Request() req): Promise<AuthUser> {
-    const userId = req.params.id.
-    id;
+    const userId = req.params.id
     return this.adminProfileService.deleteUser(userId);
   }
   }

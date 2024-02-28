@@ -2,11 +2,16 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { Profile } from '../model/profile.model';
-import { Auth } from 'src/all_modules/authentication/model/auth.model';
 import { CreateUserDto } from '../schema/dto/create-user.dto';
 import { ServiceException } from 'src/core/exceptions/service.exception';
-import { AuthUser } from 'src/all_modules/authentication/schema/entity/login.entity';
+import { AuthUser, UpdatedUserResponse } from 'src/all_modules/authentication/schema/entity/login.entity';
 import { UpdateUserDto } from '../schema/dto/update-user.dto';
+import { Auth } from 'src/all_modules/authentication/model/auth.model';
+import { UpdateStatusDto } from '../schema/dto/update-status.dto';
+import { IUser } from '../schema/interface/profile.interface';
+
+
+
 @Injectable()
 export class AdminProfileService {
   constructor(
@@ -25,12 +30,16 @@ export class AdminProfileService {
             HttpStatus.BAD_REQUEST,
           );
         }
-        user.password = 'auto-generate-password';
+        const userPassword = 'auto-generate-password';
+        const newUserData: IUser = {
+          ...userDto,
+          password: userPassword,
+        };
 
-        const newAuthModel = new this.authModel(userDto);
+        const newAuthModel = new this.authModel(newUserData);
         const newUser = await newAuthModel.save();
         const newProfileModel = new this.profileModel({
-          userId: newUser.id,
+          userId: newUser._id,
           department,
         });
         await newProfileModel.save();
@@ -58,36 +67,66 @@ export class AdminProfileService {
   async updateUserProfile(
     userId: string,
     updateData: UpdateUserDto,
-  ): Promise<AuthUser> {
+  ): Promise<UpdatedUserResponse> {
     let user = await this.authModel.findById({ id: userId });
     if (!user) {
       throw (new ServiceException('No such User'), HttpStatus.NOT_FOUND);
     }
     return await this.authModel
       .findOneAndUpdate({ id: userId }, updateData)
-      .then((update) => {
-        if (!update) {
-          throw new ServiceException('Failed to update the data'), HttpStatus.EXPECTATION_FAILED;
+      .then((updated) => {
+        if (!updated) {
+          throw (
+            (new ServiceException('Failed to update the data'),
+            HttpStatus.EXPECTATION_FAILED)
+          );
         }
 
-        const updatedUser: AuthUser = {
-          ...user.toJSON(),
-          ...updateData,
+        const updatedUser: UpdatedUserResponse = {
+          message:`The details for ${updated.fullName} has been updated successfully`
+          
         };
         return updatedUser;
       });
   }
 
-  async deleteUser(userId: string): Promise<AuthUser> {
-    return await this.authModel.findOneAndDelete({ id: userId })
-    .then(async (user): Promise<AuthUser> => {
-if(!user){
-throw new ServiceException( "User not found"), HttpStatus.BAD_REQUEST
-}
-
-return  user as AuthUser;
-
-    });
+  async updateUpdateUserStatus(userId: string, updateStatus: UpdateStatusDto): Promise<UpdatedUserResponse>{
+    let user = await this.authModel.findById({ id: userId })
+    if (!user) {
+      throw (new ServiceException('No such User'), HttpStatus.NOT_FOUND);
+    }
     
+    return await this.authModel
+      .findOneAndUpdate({ id: userId, updateStatus }).then((statusChanged) =>{
+        if (!statusChanged) {
+          throw (
+            (new ServiceException('Failed to update user status'),
+            HttpStatus.EXPECTATION_FAILED)
+          );
+        }
+
+        const updatedUser: UpdatedUserResponse = {
+          message: `The status for ${user.fullName} has been successfully changed.`
+          
+        };
+        return updatedUser;
+
+      })
+      
+
+  }
+
+  async deleteUser(userId: string): Promise<AuthUser> {
+    return await this.authModel
+      .findOneAndDelete({ id: userId })
+      .then(async (user): Promise<AuthUser> => {
+        if (!user) {
+          throw (
+            (new ServiceException('User not found'), HttpStatus.BAD_REQUEST)
+          );
+        }
+
+        return user as AuthUser;
+      });
   }
 }
