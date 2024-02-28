@@ -90,7 +90,7 @@ export class AdminProfileService {
       });
   }
 
-  async updateUpdateUserStatus(userId: string, updateStatus: UpdateStatusDto): Promise<UpdatedUserResponse>{
+  async updateUserStatus(userId: string, updateStatus: UpdateStatusDto): Promise<UpdatedUserResponse>{
     let user = await this.authModel.findById({ id: userId })
     if (!user) {
       throw (new ServiceException('No such User'), HttpStatus.NOT_FOUND);

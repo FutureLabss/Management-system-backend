@@ -1,9 +1,10 @@
-import { Controller, Get, UseGuards, Request, Post, Body, Put, Delete } from '@nestjs/common';
+import { Controller, Get, UseGuards, Request, Post, Body, Put, Delete, Param } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/core/guard/jwt-auth.guard';
 import { CreateUserDto } from '../schema/dto/create-user.dto';
-import { AuthResponse, AuthUser } from 'src/all_modules/authentication/schema/entity/login.entity';
+import { AuthResponse, AuthUser, UpdatedUserResponse } from 'src/all_modules/authentication/schema/entity/login.entity';
 import { AdminProfileService } from '../services/admin-profile.service';
 import { UpdateUserDto } from '../schema/dto/update-user.dto';
+import { UpdateStatusDto } from '../schema/dto/update-status.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('')
@@ -29,9 +30,14 @@ export default class AdminProfileController {
   @Put('edit/:id')
   editUserProfile(@Request() req,
    @Body() updateData:UpdateUserDto 
-  ):Promise<AuthUser>{
+  ):Promise<UpdatedUserResponse>{
     const userId = req.params.id;
     return this.adminProfileService.updateUserProfile(userId, updateData);
+  }
+
+  @Put('status/:id')
+  changeStatus(@Param('id') id: string, @Body() updateStatus:UpdateStatusDto):Promise<UpdatedUserResponse>{
+    return this.adminProfileService.updateUserStatus(id,updateStatus);
   }
 
   @UseGuards(JwtAuthGuard)
