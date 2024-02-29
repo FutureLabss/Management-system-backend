@@ -4,11 +4,11 @@ import { ProfileService } from '../services/profile.service';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('profile')
+@UseGuards(JwtAuthGuard)
 @Controller('')
 export default class ProfileController {
   constructor(private ProfileService: ProfileService) {}
 
-  @UseGuards(JwtAuthGuard)
   @Get('')
   getProfile(@Request() req) {
     return req.user;

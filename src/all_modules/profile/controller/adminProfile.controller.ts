@@ -21,12 +21,12 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('admin')
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 @Controller('')
 export default class AdminProfileController {
   constructor(private adminProfileService: AdminProfileService) {}
 
-  @Post('register')
+  @Post('')
   async register(
     @Body()
     createUserDto: CreateUserDto,
@@ -34,17 +34,17 @@ export default class AdminProfileController {
     return this.adminProfileService.register(createUserDto);
   }
 
-  @Get('getAllUsers')
-  getProfile(@Request() req): Promise<AuthUser[]> {
+  @Get('')
+  getProfile(): Promise<AuthUser[]> {
     return this.adminProfileService.getAllUsers();
   }
 
-  @Get('getUser/:id')
+  @Get('/:id')
   getUserProfile(@Param('id') userId: string): Promise<AuthUser> {
     return this.adminProfileService.getUserProfile(userId);
   }
 
-  @Put('updateUser/:id')
+  @Put(':id')
   editUserProfile(
     @Param('id') userId: string,
     @Body() updateData: UpdateUserDto,
@@ -60,7 +60,7 @@ export default class AdminProfileController {
     return this.adminProfileService.updateUserStatus(id, updateStatus);
   }
 
-  @Delete('deleteUser/:id')
+  @Delete(':id')
   deleteUser(@Param('id') userId: string): Promise<AuthUser> {
     return this.adminProfileService.deleteUser(userId);
   }

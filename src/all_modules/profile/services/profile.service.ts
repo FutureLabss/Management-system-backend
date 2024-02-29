@@ -3,6 +3,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { Profile } from '../model/profile.model';
 import { Auth } from 'src/all_modules/authentication/model/auth.model';
+import { AuthUser } from 'src/all_modules/authentication/schema/entity/login.entity';
+import { ServiceException } from 'src/core/exceptions/service.exception';
+import { AuthUserResponse } from '../schema/entity/profile.entity';
 
 @Injectable()
 export class ProfileService {
@@ -11,5 +14,18 @@ export class ProfileService {
     @InjectModel(Profile.name) private profileModel: mongoose.Model<Profile>,
   ) {}
 
- 
+//  async getUser(id: string): Promise<AuthUserResponse> {
+//   return this.authModel.findById({userId: id})
+//   .then((user)=>{
+//     if(!user){
+//       throw new ServiceException('No such User'), HttpStatus.NOT_FOUND;
+//     }
+// //     const authUser:AuthUserResponse{
+// //  id: userId,
+
+// //     }
+//     return user
+//   })
+// }
+
 }
