@@ -19,6 +19,7 @@ import {
   UpdatedUserResponse,
 } from 'src/all_modules/authentication/schema/entity/login.entity';
 import { ApiTags } from '@nestjs/swagger';
+import {  UserResponse } from '../schema/entity/profile.entity';
 
 @ApiTags('admin')
 // @UseGuards(JwtAuthGuard)
@@ -35,7 +36,7 @@ export default class AdminProfileController {
   }
 
   @Get('')
-  getProfile(): Promise<AuthUser[]> {
+  getProfile(): Promise<UserResponse[]> {
     return this.adminProfileService.getAllUsers();
   }
 

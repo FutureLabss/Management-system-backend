@@ -5,13 +5,14 @@ import { Profile } from '../model/profile.model';
 import { CreateUserDto } from '../schema/dto/create-user.dto';
 import { ServiceException } from 'src/core/exceptions/service.exception';
 import { UpdateUserDto } from '../schema/dto/update-user.dto';
-import { Auth } from 'src/all_modules/authentication/model/auth.model';
+import { Auth, AuthDocument } from 'src/all_modules/authentication/model/auth.model';
 import { UpdateStatusDto } from '../schema/dto/update-status.dto';
 import { IUser } from '../schema/interface/profile.interface';
 import {
   AuthUser,
   UpdatedUserResponse,
 } from 'src/all_modules/authentication/schema/entity/login.entity';
+import { UserResponse } from '../schema/entity/profile.entity';
 
 @Injectable()
 export class AdminProfileService {
@@ -53,16 +54,38 @@ export class AdminProfileService {
       });
   }
 
-  async getAllUsers(): Promise<AuthUser[]> {
-    return await this.authModel.find().then((allUsers) =>
-      allUsers.map(
-        (user) =>
-          <AuthUser>{
-            fullName: user.fullName,
-            email: user.email,
-          },
-      ),
-    );
+  async getAllUsers(): Promise<UserResponse[]> {
+return await this.profileModel.find().populate({path:'userId',})
+.then((allUsers)=>{
+    return  allUsers.map(
+      (user) =>
+      {
+        const auth = user.userId as AuthDocument
+        return <UserResponse>{
+ profilePicture: user.profilePicture,
+        department: user.department,
+        email: auth.email,
+        role : auth.role,
+        fullName: auth.fullName,
+        status: auth.isActive,
+        }
+       
+      }
+    
+      )
+
+  // });
+
+})   // return await this.authModel.find().then((allUsers) =>
+    //   allUsers.map(
+    //     (user) =>
+    //       <AuthUserResponse>{
+    //         fullName: user.fullName,
+    //         email: user.email,
+    //         role: user.role,
+    //       },
+    //   ),
+    // );
   }
 
   async getSingleUser(userId: string) {

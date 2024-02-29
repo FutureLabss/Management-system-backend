@@ -1,4 +1,4 @@
-import { Controller, Post, UseGuards, Request, Body } from '@nestjs/common';
+import { Controller, Post, UseGuards, Request, Body, HttpException } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { ApiTags } from '@nestjs/swagger';
 import { LoginDto } from '../schema/dto/login.dto';
@@ -10,6 +10,8 @@ export class AuthController {
 
   @Post('login')
   async login(@Body() DTO: LoginDto,@Request() req) {
-    return this.authService.login(DTO);
+    return this.authService.login(DTO).catch((err) =>{
+      throw new HttpException(err.message,err.statusCode??400)
+    })
   }
 }

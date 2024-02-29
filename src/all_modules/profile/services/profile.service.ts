@@ -3,9 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { Profile } from '../model/profile.model';
 import { Auth } from 'src/all_modules/authentication/model/auth.model';
-import { AuthUser } from 'src/all_modules/authentication/schema/entity/login.entity';
-import { ServiceException } from 'src/core/exceptions/service.exception';
-import { AuthUserResponse } from '../schema/entity/profile.entity';
 
 @Injectable()
 export class ProfileService {
