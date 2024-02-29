@@ -4,13 +4,14 @@ import mongoose from 'mongoose';
 import { Profile } from '../model/profile.model';
 import { CreateUserDto } from '../schema/dto/create-user.dto';
 import { ServiceException } from 'src/core/exceptions/service.exception';
-import { AuthUser, UpdatedUserResponse } from 'src/all_modules/authentication/schema/entity/login.entity';
 import { UpdateUserDto } from '../schema/dto/update-user.dto';
 import { Auth } from 'src/all_modules/authentication/model/auth.model';
 import { UpdateStatusDto } from '../schema/dto/update-status.dto';
 import { IUser } from '../schema/interface/profile.interface';
-
-
+import {
+  AuthUser,
+  UpdatedUserResponse,
+} from 'src/all_modules/authentication/schema/entity/login.entity';
 
 @Injectable()
 export class AdminProfileService {
@@ -64,6 +65,22 @@ export class AdminProfileService {
     );
   }
 
+  async getSingleUser(userId: string) {
+    const user = await this.authModel
+      .findById({ id: userId })
+      .then((singleUser) => {
+        if (!singleUser) {
+          throw (new ServiceException('No such User'), HttpStatus.NOT_FOUND);
+        }
+        const userResponse: AuthUser = {
+          id: userId,
+          fullName: singleUser.fullName,
+          email: singleUser.email,
+        };
+        return userResponse;
+      });
+  }
+
   async updateUserProfile(
     userId: string,
     updateData: UpdateUserDto,
@@ -83,21 +100,37 @@ export class AdminProfileService {
         }
 
         const updatedUser: UpdatedUserResponse = {
-          message:`The details for ${updated.fullName} has been updated successfully`
-          
+          message: `The details for ${updated.fullName} has been updated successfully`,
         };
         return updatedUser;
       });
   }
 
-  async updateUserStatus(userId: string, updateStatus: UpdateStatusDto): Promise<UpdatedUserResponse>{
-    let user = await this.authModel.findById({ id: userId })
+  async getUserProfile(userId: string): Promise<AuthUser> {
+    let user = await this.authModel.findById({ id: userId });
     if (!user) {
       throw (new ServiceException('No such User'), HttpStatus.NOT_FOUND);
     }
-    
+    const userResponse: AuthUser = {
+      id: user.id,
+      fullName: user.fullName,
+      email: user.email,
+    };
+    return userResponse;
+  }
+
+  async updateUserStatus(
+    userId: string,
+    updateStatus: UpdateStatusDto,
+  ): Promise<UpdatedUserResponse> {
+    let user = await this.authModel.findById({ id: userId });
+    if (!user) {
+      throw (new ServiceException('No such User'), HttpStatus.NOT_FOUND);
+    }
+
     return await this.authModel
-      .findOneAndUpdate({ id: userId, updateStatus }).then((statusChanged) =>{
+      .findOneAndUpdate({ id: userId, updateStatus })
+      .then((statusChanged) => {
         if (!statusChanged) {
           throw (
             (new ServiceException('Failed to update user status'),
@@ -106,14 +139,10 @@ export class AdminProfileService {
         }
 
         const updatedUser: UpdatedUserResponse = {
-          message: `The status for ${user.fullName} has been successfully changed.`
-          
+          message: `The status for ${user.fullName} has been successfully changed.`,
         };
         return updatedUser;
-
-      })
-      
-
+      });
   }
 
   async deleteUser(userId: string): Promise<AuthUser> {

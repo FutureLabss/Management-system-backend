@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsEnum,
@@ -6,9 +7,9 @@ import {
   MinLength,
 } from 'class-validator';
 import {
-  Gender, Role,
+  Gender,
+  Role,
 } from 'src/all_modules/authentication/schema/enum/auth.enum';
-import { Status } from '../enum/userProfile.enum';
 
 export class CreateUserDto {
   @IsNotEmpty()
@@ -22,5 +23,6 @@ export class CreateUserDto {
   readonly department: string;
   @IsEnum(Gender)
   readonly gender: Gender;
+  @IsEnum(Role)
+  readonly role: Role;
 }
-

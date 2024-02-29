@@ -3,10 +3,10 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Auth, AuthDocument } from '../model/auth.model';
 import mongoose from 'mongoose';
-import { LoginDto } from '../schema/dto/login.dto';
-import { AuthResponse, AuthUser } from '../schema/entity/login.entity';
 import { ServiceException } from 'src/core/exceptions/service.exception';
 import { compareSync } from 'bcrypt';
+import { LoginDto } from '../schema/dto/login.dto';
+import { AuthResponse, AuthUser } from '../schema/entity/login.entity';
 
 @Injectable()
 export class AuthService {
