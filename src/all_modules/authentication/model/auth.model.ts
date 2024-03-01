@@ -14,7 +14,7 @@ export class Auth {
   @Prop({ required: true })
   password: string;
   @Prop()
-  phoneNumber: number;
+  phoneNumber: string;
   @Prop({ enum: Gender })
   gender: Gender;
   @Prop({ enum: Role, default: Role.USER })

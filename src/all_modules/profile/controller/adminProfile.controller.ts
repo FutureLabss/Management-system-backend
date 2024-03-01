@@ -42,7 +42,8 @@ export default class AdminProfileController {
 
   @Get('/:id')
   getUserProfile(@Param('id') userId: string): Promise<AuthUser> {
-    return this.adminProfileService.getUserProfile(userId);
+    console.log(userId)
+    return this.adminProfileService.getSingleUser(userId);
   }
 
   @Put(':id')

@@ -1,5 +1,7 @@
+import { AuthDocument } from "../../model/auth.model";
+
 export class AuthUser {
-  id: string;
+  id: string | AuthDocument
   fullName: string;
   email: string;
 }

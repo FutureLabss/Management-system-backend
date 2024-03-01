@@ -18,11 +18,13 @@ export class CreateUserDto {
   @IsEmail()
   readonly email: string;
   @IsNotEmpty()
-  readonly phoneNumber: number;
+  readonly phoneNumber: string;
   @IsNotEmpty()
   readonly department: string;
+  @IsNotEmpty()
   @IsEnum(Gender)
   readonly gender: Gender;
+  @IsNotEmpty()
   @IsEnum(Role)
   readonly role: Role;
 }

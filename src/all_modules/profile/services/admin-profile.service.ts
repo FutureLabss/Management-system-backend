@@ -5,14 +5,17 @@ import { Profile } from '../model/profile.model';
 import { CreateUserDto } from '../schema/dto/create-user.dto';
 import { ServiceException } from 'src/core/exceptions/service.exception';
 import { UpdateUserDto } from '../schema/dto/update-user.dto';
-import { Auth, AuthDocument } from 'src/all_modules/authentication/model/auth.model';
+import {
+  Auth,
+  AuthDocument,
+} from 'src/all_modules/authentication/model/auth.model';
 import { UpdateStatusDto } from '../schema/dto/update-status.dto';
 import { IUser } from '../schema/interface/profile.interface';
 import {
   AuthUser,
   UpdatedUserResponse,
 } from 'src/all_modules/authentication/schema/entity/login.entity';
-import { UserResponse } from '../schema/entity/profile.entity';
+import { SingleUserResponse, UserResponse } from '../schema/entity/profile.entity';
 
 @Injectable()
 export class AdminProfileService {
@@ -32,7 +35,7 @@ export class AdminProfileService {
             HttpStatus.BAD_REQUEST,
           );
         }
-        const userPassword = 'auto-generate-password';
+        const userPassword = 'password';
         const newUserData: IUser = {
           ...userDto,
           password: userPassword,
@@ -55,52 +58,43 @@ export class AdminProfileService {
   }
 
   async getAllUsers(): Promise<UserResponse[]> {
-return await this.profileModel.find().populate({path:'userId',})
-.then((allUsers)=>{
-    return  allUsers.map(
-      (user) =>
-      {
-        const auth = user.userId as AuthDocument
-        return <UserResponse>{
- profilePicture: user.profilePicture,
-        department: user.department,
-        email: auth.email,
-        role : auth.role,
-        fullName: auth.fullName,
-        status: auth.isActive,
-        }
-       
-      }
-    
-      )
+    return await this.profileModel
+      .find()
+      .populate({ path: 'userId' })
+      .then((allUsers) => {
+        return allUsers.map((user) => {
+          const auth = user.userId as AuthDocument;
+          return <UserResponse>{
+            id: user.id,
+            profilePicture: user.profilePicture,
+            department: user.department,
+            email: auth.email,
+            role: auth.role,
+            fullName: auth.fullName,
+            status: auth.isActive,
+          };
+        });
+      });
+  };
 
-  // });
-
-})   // return await this.authModel.find().then((allUsers) =>
-    //   allUsers.map(
-    //     (user) =>
-    //       <AuthUserResponse>{
-    //         fullName: user.fullName,
-    //         email: user.email,
-    //         role: user.role,
-    //       },
-    //   ),
-    // );
-  }
-
-  async getSingleUser(userId: string) {
-    const user = await this.authModel
-      .findById({ id: userId })
+  async getSingleUser(id: string): Promise<any>{
+   return await this.profileModel.findById(id )
+    .populate({ path: 'userId' })
       .then((singleUser) => {
         if (!singleUser) {
           throw (new ServiceException('No such User'), HttpStatus.NOT_FOUND);
         }
-        const userResponse: AuthUser = {
-          id: userId,
-          fullName: singleUser.fullName,
-          email: singleUser.email,
+        const auth = singleUser.userId as AuthDocument;
+        return <SingleUserResponse>{
+          id: auth.id,
+          fullName: auth.fullName,
+          email: auth.email,
+          department: singleUser.department,
+          userType: singleUser.userType,
+          profilePicture: singleUser.profilePicture,
+          phoneNumber: auth.phoneNumber
         };
-        return userResponse;
+        
       });
   }
 
@@ -129,18 +123,6 @@ return await this.profileModel.find().populate({path:'userId',})
       });
   }
 
-  async getUserProfile(userId: string): Promise<AuthUser> {
-    let user = await this.authModel.findById({ id: userId });
-    if (!user) {
-      throw (new ServiceException('No such User'), HttpStatus.NOT_FOUND);
-    }
-    const userResponse: AuthUser = {
-      id: user.id,
-      fullName: user.fullName,
-      email: user.email,
-    };
-    return userResponse;
-  }
 
   async updateUserStatus(
     userId: string,
