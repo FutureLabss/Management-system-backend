@@ -8,13 +8,17 @@ import {
  
   
   export class UpdateUserDto {
-    @IsNotEmpty()
+    // @IsNotEmpty()
     readonly fullName?: string;
-    @IsNotEmpty()
-    readonly phoneNumber?: number;
-    @IsNotEmpty()
+    // @IsNotEmpty()
+    readonly phoneNumber?: string;
+    // @IsNotEmpty()
     readonly department?: string;
-    @IsEnum(Gender)
+    // @IsEnum(Gender)
     readonly gender?: Gender;
+    // @IsNotEmpty()
+    readonly role: string;
+    // @IsNotEmpty()
+    readonly profilePicture?: string;
   }
   

@@ -5,7 +5,8 @@ export type AttendanceDocument = HydratedDocument<Attendance>;
 
 @Schema()
 export class Attendance {
-leId: string;
+@Prop({ type:String, required: true })
+userId: string;
 }
 
 export const AttendanceSchema = SchemaFactory.createForClass(Attendance);

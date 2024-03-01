@@ -10,11 +10,11 @@ export type ProfileDocument = HydratedDocument<Profile>;
 export class Profile {
   @Prop({ type: SchemaTypes.ObjectId, ref: 'Auth', required: true })
   userId: string | AuthDocument
-  @Prop()
+  @Prop({type: String})
   department:string
   @Prop({enum:UserTypeSelection, default:UserTypeSelection.TRAINEE})
   userType: UserTypeSelection
-  @Prop()
+  @Prop({type:String})
   profilePicture:string
 }
 

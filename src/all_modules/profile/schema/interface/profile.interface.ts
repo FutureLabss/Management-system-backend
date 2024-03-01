@@ -7,3 +7,12 @@ export interface IUser {
   phoneNumber: string;
   gender: Gender;
 }
+
+
+export interface IAdminUserUpdate{
+  fullName?:string
+  phoneNumber?: string;
+  gender?: Gender;
+  department?: string;
+  profilePicture?:string
+}

@@ -7,13 +7,13 @@ export type AuthDocument = HydratedDocument<Auth>;
 
 @Schema()
 export class Auth {
-  @Prop()
+  @Prop({type: String, required: true})
   fullName: string;
-  @Prop({ type: String, unique: true })
+  @Prop({ type: String, unique: true, required: true})
   email: string;
-  @Prop({ required: true })
+  @Prop({ type:String, required: true })
   password: string;
-  @Prop()
+  @Prop({ type:String, required: true })
   phoneNumber: string;
   @Prop({ enum: Gender })
   gender: Gender;

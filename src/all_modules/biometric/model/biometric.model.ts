@@ -7,7 +7,7 @@ export type BiometricDocument = HydratedDocument<Biometric>;
 export class Biometric {
   @Prop({ type: SchemaTypes.ObjectId, ref: 'Auth', required: true })
   userId: string;
-  @Prop()
+  @Prop({type: String})
   userBiometric: string;
 }
 

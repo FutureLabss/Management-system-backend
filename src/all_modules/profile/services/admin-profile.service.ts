@@ -15,7 +15,10 @@ import {
   AuthUser,
   UpdatedUserResponse,
 } from 'src/all_modules/authentication/schema/entity/login.entity';
-import { SingleUserResponse, UserResponse } from '../schema/entity/profile.entity';
+import {
+  SingleUserResponse,
+  UserResponse,
+} from '../schema/entity/profile.entity';
 
 @Injectable()
 export class AdminProfileService {
@@ -40,7 +43,6 @@ export class AdminProfileService {
           ...userDto,
           password: userPassword,
         };
-
         const newAuthModel = new this.authModel(newUserData);
         const newUser = await newAuthModel.save();
         const newProfileModel = new this.profileModel({
@@ -75,11 +77,12 @@ export class AdminProfileService {
           };
         });
       });
-  };
+  }
 
-  async getSingleUser(id: string): Promise<any>{
-   return await this.profileModel.findById(id )
-    .populate({ path: 'userId' })
+  async getSingleUser(id: string): Promise<any> {
+    return await this.profileModel
+      .findById(id)
+      .populate({ path: 'userId' })
       .then((singleUser) => {
         if (!singleUser) {
           throw (new ServiceException('No such User'), HttpStatus.NOT_FOUND);
@@ -92,9 +95,8 @@ export class AdminProfileService {
           department: singleUser.department,
           userType: singleUser.userType,
           profilePicture: singleUser.profilePicture,
-          phoneNumber: auth.phoneNumber
+          phoneNumber: auth.phoneNumber,
         };
-        
       });
   }
 
@@ -102,12 +104,13 @@ export class AdminProfileService {
     userId: string,
     updateData: UpdateUserDto,
   ): Promise<UpdatedUserResponse> {
-    let user = await this.authModel.findById({ id: userId });
-    if (!user) {
+    const { department, profilePicture, ...userInfo } = updateData;
+    let userProfile = await this.profileModel.findById(userId);
+    if (!userProfile) {
       throw (new ServiceException('No such User'), HttpStatus.NOT_FOUND);
     }
     return await this.authModel
-      .findOneAndUpdate({ id: userId }, updateData)
+      .findByIdAndUpdate(userProfile.userId, userInfo)
       .then((updated) => {
         if (!updated) {
           throw (
@@ -115,26 +118,30 @@ export class AdminProfileService {
             HttpStatus.EXPECTATION_FAILED)
           );
         }
-
-        const updatedUser: UpdatedUserResponse = {
-          message: `The details for ${updated.fullName} has been updated successfully`,
-        };
-        return updatedUser;
+        return this.profileModel
+          .findByIdAndUpdate(
+            { id: userProfile.id },
+            { department, profilePicture },
+          )
+          .then(() => {
+            const updatedUser: UpdatedUserResponse = {
+              message: `The details for ${updated.fullName} has been updated successfully`,
+            };
+            return updatedUser;
+          });
       });
   }
-
 
   async updateUserStatus(
     userId: string,
     updateStatus: UpdateStatusDto,
   ): Promise<UpdatedUserResponse> {
-    let user = await this.authModel.findById({ id: userId });
+    let user = await this.authModel.findById(userId);
     if (!user) {
       throw (new ServiceException('No such User'), HttpStatus.NOT_FOUND);
     }
-
     return await this.authModel
-      .findOneAndUpdate({ id: userId, updateStatus })
+      .findByIdAndUpdate(userId, updateStatus)
       .then((statusChanged) => {
         if (!statusChanged) {
           throw (
@@ -142,7 +149,6 @@ export class AdminProfileService {
             HttpStatus.EXPECTATION_FAILED)
           );
         }
-
         const updatedUser: UpdatedUserResponse = {
           message: `The status for ${user.fullName} has been successfully changed.`,
         };
@@ -150,17 +156,19 @@ export class AdminProfileService {
       });
   }
 
-  async deleteUser(userId: string): Promise<AuthUser> {
-    return await this.authModel
-      .findOneAndDelete({ id: userId })
-      .then(async (user): Promise<AuthUser> => {
-        if (!user) {
-          throw (
-            (new ServiceException('User not found'), HttpStatus.BAD_REQUEST)
-          );
-        }
-
-        return user as AuthUser;
+  async deleteUser(userId: string): Promise<UpdatedUserResponse> {
+    return await this.profileModel.findById(userId).then((user) => {
+      if (!user) {
+        throw (new ServiceException('User not found'), HttpStatus.BAD_REQUEST);
+      }
+      return Promise.allSettled([
+        user.deleteOne(),
+        this.authModel.findByIdAndDelete(user.userId),
+      ]).then(() => {
+        return {
+          message: 'User deleted successfully',
+        };
       });
+    });
   }
 }

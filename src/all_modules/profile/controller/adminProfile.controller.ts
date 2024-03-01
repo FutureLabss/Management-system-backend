@@ -8,6 +8,7 @@ import {
   Put,
   Delete,
   Param,
+  HttpException,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/core/guard/jwt-auth.guard';
 import { CreateUserDto } from '../schema/dto/create-user.dto';
@@ -42,7 +43,6 @@ export default class AdminProfileController {
 
   @Get('/:id')
   getUserProfile(@Param('id') userId: string): Promise<AuthUser> {
-    console.log(userId)
     return this.adminProfileService.getSingleUser(userId);
   }
 
@@ -63,7 +63,9 @@ export default class AdminProfileController {
   }
 
   @Delete(':id')
-  deleteUser(@Param('id') userId: string): Promise<AuthUser> {
-    return this.adminProfileService.deleteUser(userId);
+  deleteUser(@Param('id') userId: string): Promise<UpdatedUserResponse> {
+    return this.adminProfileService.deleteUser(userId).catch(err =>{
+      throw new HttpException(err.message,err.statusCode??400)
+    });
   }
 }
