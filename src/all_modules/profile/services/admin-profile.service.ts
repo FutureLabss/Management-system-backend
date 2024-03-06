@@ -59,9 +59,11 @@ export class AdminProfileService {
       });
   }
 
-  async getAllUsers(): Promise<UserResponse[]> {
+  async getAllUsers(page: number = 1, pageSize: number = 10): Promise<UserResponse[]> {
+    const currentPage = (page - 1) * pageSize;
+    console.log(currentPage)
     return await this.profileModel
-      .find()
+      .find().skip(currentPage).limit(pageSize)
       .populate({ path: 'userId' })
       .then((allUsers) => {
         return allUsers.map((user) => {
@@ -171,4 +173,6 @@ export class AdminProfileService {
       });
     });
   }
+
+  
 }

@@ -9,6 +9,7 @@ import {
   Delete,
   Param,
   HttpException,
+  Query,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/core/guard/jwt-auth.guard';
 import { CreateUserDto } from '../schema/dto/create-user.dto';
@@ -20,7 +21,7 @@ import {
   UpdatedUserResponse,
 } from 'src/all_modules/authentication/schema/entity/login.entity';
 import { ApiTags } from '@nestjs/swagger';
-import {  UserResponse } from '../schema/entity/profile.entity';
+import { UserResponse } from '../schema/entity/profile.entity';
 
 @ApiTags('admin')
 // @UseGuards(JwtAuthGuard)
@@ -33,39 +34,54 @@ export default class AdminProfileController {
     @Body()
     createUserDto: CreateUserDto,
   ): Promise<AuthUser> {
-    return this.adminProfileService.register(createUserDto);
+    return this.adminProfileService.register(createUserDto).catch((err) => {
+      throw new HttpException(err.message, err.statusCode ?? 400);
+    });
   }
 
   @Get('')
-  getProfile(): Promise<UserResponse[]> {
-    return this.adminProfileService.getAllUsers();
+  async getProfile(@Query('page') page: number, @Query('pageSize') pageSize: number): Promise<UserResponse[]> {
+    return this.adminProfileService.getAllUsers(page, pageSize).catch((err) => {
+      throw new HttpException(err.message, err.statusCode ?? 400);
+    });
   }
 
-  @Get('/:id')
-  getUserProfile(@Param('id') userId: string): Promise<AuthUser> {
-    return this.adminProfileService.getSingleUser(userId);
+
+  @Get(':id')
+  async getUserProfile(@Param('id') userId: string): Promise<AuthUser> {
+    return this.adminProfileService.getSingleUser(userId).catch((err) => {
+      throw new HttpException(err.message, err.statusCode ?? 400);
+    });
   }
 
   @Put(':id')
-  editUserProfile(
+  async editUserProfile(
     @Param('id') userId: string,
     @Body() updateData: UpdateUserDto,
   ): Promise<UpdatedUserResponse> {
-    return this.adminProfileService.updateUserProfile(userId, updateData);
+    return this.adminProfileService
+      .updateUserProfile(userId, updateData)
+      .catch((err) => {
+        throw new HttpException(err.message, err.statusCode ?? 400);
+      });
   }
 
   @Put('updateStatus/:id')
-  editStatus(
+  async editStatus(
     @Param('id') id: string,
     @Body() updateStatus: UpdateStatusDto,
   ): Promise<UpdatedUserResponse> {
-    return this.adminProfileService.updateUserStatus(id, updateStatus);
+    return this.adminProfileService
+      .updateUserStatus(id, updateStatus)
+      .catch((err) => {
+        throw new HttpException(err.message, err.statusCode ?? 400);
+      });
   }
 
   @Delete(':id')
-  deleteUser(@Param('id') userId: string): Promise<UpdatedUserResponse> {
-    return this.adminProfileService.deleteUser(userId).catch(err =>{
-      throw new HttpException(err.message,err.statusCode??400)
+  async deleteUser(@Param('id') userId: string): Promise<UpdatedUserResponse> {
+    return this.adminProfileService.deleteUser(userId).catch((err) => {
+      throw new HttpException(err.message, err.statusCode ?? 400);
     });
   }
 }

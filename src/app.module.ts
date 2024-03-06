@@ -7,6 +7,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ProfileModule } from './all_modules/profile/module/profile.module';
 import { AdminProfileModule } from './all_modules/profile/module/admin-profile.module';
 import routes from './route';
+import { StatisticsModule } from './all_modules/statistics/module/statistics.module';
 
 @Module({
   imports: [
@@ -14,13 +15,14 @@ import routes from './route';
       envFilePath: '.env',
       isGlobal: true,
     }),
-    MongooseModule.forRoot(process.env.MONGODBURI ),
+    MongooseModule.forRoot(process.env.MONGODBURI),
     AuthModule,
     AttendanceModule,
     BiometricModule,
     AdminProfileModule,
     ProfileModule,
-    routes
+    StatisticsModule,
+    routes,
   ],
 })
 export class AppModule {}
