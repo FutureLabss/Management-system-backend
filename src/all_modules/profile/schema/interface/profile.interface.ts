@@ -1,5 +1,6 @@
-import { IsNumber, IsString } from "class-validator";
-import { Gender } from "src/all_modules/authentication/schema/enum/auth.enum";
+import { Transform } from 'class-transformer';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { Gender } from 'src/all_modules/authentication/schema/enum/auth.enum';
 
 export interface IUser {
   fullName: string;
@@ -9,24 +10,27 @@ export interface IUser {
   gender: Gender;
 }
 
-
-export interface IAdminUserUpdate{
-  fullName?:string
+export interface IAdminUserUpdate {
+  fullName?: string;
   phoneNumber?: string;
   gender?: Gender;
   department?: string;
-  profilePicture?:string
+  profilePicture?: string;
 }
 
-export class Pagination{
+export class Pagination {
+  @Transform(({ value }) => parseInt(value))
   @IsNumber()
-  readonly page: number = 1
+  @IsOptional()
+  page: number;
+  @Transform(({ value }) => parseInt(value))
   @IsNumber()
-  readonly pageSize: number = 10
-
+  @IsOptional()
+  pageSize: number = 10;
 }
 
-export class Filter extends Pagination{
+export class Filter extends Pagination {
   @IsString()
-  readonly department: string
+  @IsOptional()
+  department: string;
 }

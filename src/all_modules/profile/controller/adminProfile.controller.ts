@@ -23,6 +23,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { UserResponse } from '../schema/entity/profile.entity';
 import { AdminAuthGuard } from 'src/core/guard/admin.guard';
 import { PaginatedResponse } from 'src/core/entities/response.entities';
+import { Filter } from '../schema/interface/profile.interface';
 
 @ApiTags('admin')
 @UseGuards(AdminAuthGuard)
@@ -44,9 +45,9 @@ export default class AdminProfileController {
 
   @Get('')
   async getProfile(
-    @Query() query: number,
+    @Query() query: Filter,
   ): Promise<PaginatedResponse<UserResponse>> {
-    return this.adminProfileService.getAllUser().catch((err) => {
+     return this.adminProfileService.getAllUsers(query).catch((err) => {
       throw new HttpException(err.message, err.statusCode ?? 400);
     });
   }

@@ -15,7 +15,7 @@ import {
   AuthDocument,
 } from 'src/all_modules/authentication/model/auth.model';
 import { UpdateStatusDto } from '../schema/dto/update-status.dto';
-import { IUser } from '../schema/interface/profile.interface';
+import { Filter, IUser } from '../schema/interface/profile.interface';
 import {
   AuthUser,
   UpdatedUserResponse,
@@ -91,10 +91,8 @@ export class AdminProfileService implements OnModuleInit {
       });
   }
 
-  async getAllUsers(
-    page: number = 1,
-    pageSize: number = 10,
-    ):Promise<PaginatedResponse<UserResponse>> {
+  async getAllUsers(filters: Filter):Promise<PaginatedResponse<UserResponse>> {
+    const {page, pageSize, ...otherFilters} = filters
     return await this.profileModel
       .find()
       .populate({ path: 'userId' })
