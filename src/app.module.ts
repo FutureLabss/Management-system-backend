@@ -8,6 +8,9 @@ import { ProfileModule } from './all_modules/profile/module/profile.module';
 import { AdminProfileModule } from './all_modules/profile/module/admin-profile.module';
 import routes from './route';
 import { StatisticsModule } from './all_modules/statistics/module/statistics.module';
+import { AdminProfileService } from './all_modules/profile/services/admin-profile.service';
+import { Connection } from 'mongoose';
+import { PaginatePlugin } from './core/plugins/mongo.plugins';
 
 @Module({
   imports: [
@@ -15,7 +18,12 @@ import { StatisticsModule } from './all_modules/statistics/module/statistics.mod
       envFilePath: '.env',
       isGlobal: true,
     }),
-    MongooseModule.forRoot(process.env.MONGODBURI),
+    MongooseModule.forRoot(process.env.MONGODBURI, {
+      connectionFactory: (connection: Connection) => {
+        connection.plugin(PaginatePlugin);
+        return connection;
+      },
+    }),
     AuthModule,
     AttendanceModule,
     BiometricModule,
@@ -25,4 +33,8 @@ import { StatisticsModule } from './all_modules/statistics/module/statistics.mod
     routes,
   ],
 })
-export class AppModule {}
+export class AppModule {
+  // constructor(private readonly adminService: AdminProfileService) {
+  //   this.adminService.createDefaultAdminUser().then(() => console.log('Default admin user created.'));
+  // }
+}

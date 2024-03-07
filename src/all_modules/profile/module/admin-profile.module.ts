@@ -17,5 +17,6 @@ import {
   ],
   controllers: [AdminProfileController],
   providers: [AdminProfileService],
+  exports:[AdminProfileService]
 })
 export class AdminProfileModule {}

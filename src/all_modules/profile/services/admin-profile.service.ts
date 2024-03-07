@@ -1,7 +1,12 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpStatus,
+  Injectable,
+  OnModuleInit,
+  UseGuards,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
-import { Profile } from '../model/profile.model';
+import { Profile, ProfileDocument } from '../model/profile.model';
 import { CreateUserDto } from '../schema/dto/create-user.dto';
 import { ServiceException } from 'src/core/exceptions/service.exception';
 import { UpdateUserDto } from '../schema/dto/update-user.dto';
@@ -19,13 +24,39 @@ import {
   SingleUserResponse,
   UserResponse,
 } from '../schema/entity/profile.entity';
+import { Role } from 'src/all_modules/authentication/schema/enum/auth.enum';
+import { ConfigService } from '@nestjs/config';
+import { PaginateModel } from 'src/core/helpers/pagination';
+import { PaginatedResponse } from 'src/core/entities/response.entities';
 
 @Injectable()
-export class AdminProfileService {
+export class AdminProfileService implements OnModuleInit {
   constructor(
     @InjectModel(Auth.name) private authModel: mongoose.Model<Auth>,
-    @InjectModel(Profile.name) private profileModel: mongoose.Model<Profile>,
+    @InjectModel(Profile.name) private profileModel: PaginateModel<Profile>,
+    private configService: ConfigService,
   ) {}
+
+  async onModuleInit() {
+    return this.authModel
+      .findOne({
+        email: this.configService.get('DEFAULT_ADMIN', 'admin10@email.com'),
+      })
+      .then(async (existingUser) => {
+        if (!existingUser) {
+          const adminUser = new this.authModel({
+            email: this.configService.get('DEFAULT_ADMIN', 'admin10@email.com'),
+            fullName: 'admin',
+            password: this.configService.get('DEFAULT_PASSWORD', 'password10 '),
+            role: Role.ADMIN,
+            phoneNumber: '09045678902',
+          });
+
+          return adminUser.save().catch(() => {});
+        }
+      })
+      .catch(() => {});
+  }
 
   async register(createUserDto: CreateUserDto): Promise<AuthUser> {
     const { department, ...userDto } = createUserDto;
@@ -54,19 +85,22 @@ export class AdminProfileService {
           id: newUser.id,
           fullName: newUser.fullName,
           email: newUser.email,
+          role: newUser.role,
         };
         return response;
       });
   }
 
-  async getAllUsers(page: number = 1, pageSize: number = 10): Promise<UserResponse[]> {
-    const currentPage = (page - 1) * pageSize;
-    console.log(currentPage)
+  async getAllUsers(
+    page: number = 1,
+    pageSize: number = 10,
+    ):Promise<PaginatedResponse<UserResponse>> {
     return await this.profileModel
-      .find().skip(currentPage).limit(pageSize)
+      .find()
       .populate({ path: 'userId' })
+      .paginate({ page, limit: pageSize })
       .then((allUsers) => {
-        return allUsers.map((user) => {
+        const data = allUsers.data.map((user) => {
           const auth = user.userId as AuthDocument;
           return <UserResponse>{
             id: user.id,
@@ -78,6 +112,10 @@ export class AdminProfileService {
             status: auth.isActive,
           };
         });
+        return <PaginatedResponse<UserResponse>>{
+          ...allUsers,
+          data,
+        };
       });
   }
 
@@ -138,12 +176,12 @@ export class AdminProfileService {
     userId: string,
     updateStatus: UpdateStatusDto,
   ): Promise<UpdatedUserResponse> {
-    let user = await this.authModel.findById(userId);
+    let user = await this.profileModel.findById(userId);
     if (!user) {
       throw (new ServiceException('No such User'), HttpStatus.NOT_FOUND);
     }
     return await this.authModel
-      .findByIdAndUpdate(userId, updateStatus)
+      .findByIdAndUpdate(user.userId, updateStatus)
       .then((statusChanged) => {
         if (!statusChanged) {
           throw (
@@ -152,7 +190,7 @@ export class AdminProfileService {
           );
         }
         const updatedUser: UpdatedUserResponse = {
-          message: `The status for ${user.fullName} has been successfully changed.`,
+          message: `The status has been successfully changed.`,
         };
         return updatedUser;
       });
@@ -173,6 +211,4 @@ export class AdminProfileService {
       });
     });
   }
-
-  
 }

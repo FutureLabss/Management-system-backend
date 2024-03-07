@@ -11,7 +11,6 @@ import {
   HttpException,
   Query,
 } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/core/guard/jwt-auth.guard';
 import { CreateUserDto } from '../schema/dto/create-user.dto';
 import { AdminProfileService } from '../services/admin-profile.service';
 import { UpdateUserDto } from '../schema/dto/update-user.dto';
@@ -22,9 +21,13 @@ import {
 } from 'src/all_modules/authentication/schema/entity/login.entity';
 import { ApiTags } from '@nestjs/swagger';
 import { UserResponse } from '../schema/entity/profile.entity';
+import { AdminAuthGuard } from 'src/core/guard/admin.guard';
+import { PaginatedResponse } from 'src/core/entities/response.entities';
 
 @ApiTags('admin')
-// @UseGuards(JwtAuthGuard)
+@UseGuards(AdminAuthGuard)
+// @UseGuards()
+// @Roles(Role.ADMIN)
 @Controller('')
 export default class AdminProfileController {
   constructor(private adminProfileService: AdminProfileService) {}
@@ -40,12 +43,13 @@ export default class AdminProfileController {
   }
 
   @Get('')
-  async getProfile(@Query('page') page: number, @Query('pageSize') pageSize: number): Promise<UserResponse[]> {
-    return this.adminProfileService.getAllUsers(page, pageSize).catch((err) => {
+  async getProfile(
+    @Query() query: number,
+  ): Promise<PaginatedResponse<UserResponse>> {
+    return this.adminProfileService.getAllUser().catch((err) => {
       throw new HttpException(err.message, err.statusCode ?? 400);
     });
   }
-
 
   @Get(':id')
   async getUserProfile(@Param('id') userId: string): Promise<AuthUser> {
