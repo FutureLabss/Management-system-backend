@@ -7,9 +7,10 @@ import {
   Auth,
   AuthSchema,
 } from 'src/all_modules/authentication/model/auth.model';
+import { EmailModule } from 'src/all_modules/email/module/email.module';
 
 @Module({
-  imports: [
+  imports: [EmailModule,
     MongooseModule.forFeature([
       { name: Profile.name, schema: ProfileSchema },
       { name: Auth.name, schema: AuthSchema },

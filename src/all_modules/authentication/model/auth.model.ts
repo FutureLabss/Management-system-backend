@@ -23,6 +23,8 @@ export class Auth {
   isVerified:boolean
   @Prop({default:true})
   isActive:boolean
+  @Prop()
+  verificationToken:string
 }
 
 export const AuthSchema = SchemaFactory.createForClass(Auth);

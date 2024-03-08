@@ -18,6 +18,11 @@ export interface IAdminUserUpdate {
   profilePicture?: string;
 }
 
+export interface IEmail {
+  fullName: string;
+  password: string;
+  email: string;
+}
 export class Pagination {
   @Transform(({ value }) => parseInt(value))
   @IsNumber()

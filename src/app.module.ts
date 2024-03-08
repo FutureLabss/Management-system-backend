@@ -33,8 +33,4 @@ import { PaginatePlugin } from './core/plugins/mongo.plugins';
     routes,
   ],
 })
-export class AppModule {
-  // constructor(private readonly adminService: AdminProfileService) {
-  //   this.adminService.createDefaultAdminUser().then(() => console.log('Default admin user created.'));
-  // }
-}
+export class AppModule {}

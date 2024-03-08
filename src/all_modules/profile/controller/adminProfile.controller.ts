@@ -27,8 +27,6 @@ import { Filter } from '../schema/interface/profile.interface';
 
 @ApiTags('admin')
 @UseGuards(AdminAuthGuard)
-// @UseGuards()
-// @Roles(Role.ADMIN)
 @Controller('')
 export default class AdminProfileController {
   constructor(private adminProfileService: AdminProfileService) {}

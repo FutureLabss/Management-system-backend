@@ -2,7 +2,6 @@ import {
   HttpStatus,
   Injectable,
   OnModuleInit,
-  UseGuards,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
@@ -28,6 +27,7 @@ import { Role } from 'src/all_modules/authentication/schema/enum/auth.enum';
 import { ConfigService } from '@nestjs/config';
 import { PaginateModel } from 'src/core/helpers/pagination';
 import { PaginatedResponse } from 'src/core/entities/response.entities';
+import { EmailService } from 'src/all_modules/email/services/email.service';
 
 @Injectable()
 export class AdminProfileService implements OnModuleInit {
@@ -35,7 +35,9 @@ export class AdminProfileService implements OnModuleInit {
     @InjectModel(Auth.name) private authModel: mongoose.Model<Auth>,
     @InjectModel(Profile.name) private profileModel: PaginateModel<Profile>,
     private configService: ConfigService,
-  ) {}
+    private emailService: EmailService)
+    
+  {}
 
   async onModuleInit() {
     return this.authModel
@@ -59,6 +61,8 @@ export class AdminProfileService implements OnModuleInit {
   }
 
   async register(createUserDto: CreateUserDto): Promise<AuthUser> {
+    const token = Math.floor(1000 + Math.random() * 9000).toString();
+    const userPassword = createUserDto.email.split('@')[0] + Math.floor(10 + Math.random() * 5);
     const { department, ...userDto } = createUserDto;
     return await this.authModel
       .findOne({ email: createUserDto.email })
@@ -69,10 +73,9 @@ export class AdminProfileService implements OnModuleInit {
             HttpStatus.BAD_REQUEST,
           );
         }
-        const userPassword = 'password';
         const newUserData: IUser = {
           ...userDto,
-          password: userPassword,
+          password:userPassword,
         };
         const newAuthModel = new this.authModel(newUserData);
         const newUser = await newAuthModel.save();
@@ -87,6 +90,7 @@ export class AdminProfileService implements OnModuleInit {
           email: newUser.email,
           role: newUser.role,
         };
+        await this.emailService.sendUserWelcome(newUserData, token);
         return response;
       });
   }
@@ -94,7 +98,7 @@ export class AdminProfileService implements OnModuleInit {
   async getAllUsers(filters: Filter):Promise<PaginatedResponse<UserResponse>> {
     const {page, pageSize, ...otherFilters} = filters
     return await this.profileModel
-      .find()
+      .find({ ...otherFilters})
       .populate({ path: 'userId' })
       .paginate({ page, limit: pageSize })
       .then((allUsers) => {
@@ -117,13 +121,13 @@ export class AdminProfileService implements OnModuleInit {
       });
   }
 
-  async getSingleUser(id: string): Promise<any> {
+  async getSingleUser(id: string): Promise<SingleUserResponse> {
     return await this.profileModel
       .findById(id)
       .populate({ path: 'userId' })
       .then((singleUser) => {
         if (!singleUser) {
-          throw (new ServiceException('No such User'), HttpStatus.NOT_FOUND);
+          throw new ServiceException('No such User'), HttpStatus.NOT_FOUND;
         }
         const auth = singleUser.userId as AuthDocument;
         return <SingleUserResponse>{
@@ -149,7 +153,7 @@ export class AdminProfileService implements OnModuleInit {
     }
     return await this.authModel
       .findByIdAndUpdate(userProfile.userId, userInfo)
-      .then((updated) => {
+      .then(async(updated) => { 
         if (!updated) {
           throw (
             (new ServiceException('Failed to update the data'),
@@ -158,12 +162,12 @@ export class AdminProfileService implements OnModuleInit {
         }
         return this.profileModel
           .findByIdAndUpdate(
-            { id: userProfile.id },
+             userProfile.id ,
             { department, profilePicture },
           )
           .then(() => {
             const updatedUser: UpdatedUserResponse = {
-              message: `The details for ${updated.fullName} has been updated successfully`,
+              message: `The details for "${updated.fullName}" has been updated successfully`,
             };
             return updatedUser;
           });
