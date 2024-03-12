@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import { Auth } from "src/all_modules/authentication/model/auth.model";
 import { Profile } from "src/all_modules/profile/model/profile.model";
 import { UserStatsResponse } from "../schema/interface/statistics.interface";
+import { GenderTotal } from "../schema/dto/entity/gender.entity";
 
 @Injectable()
 export class StatisticsService {
@@ -13,7 +14,7 @@ export class StatisticsService {
   ) {}
 
   
-  async getGenderCounts(): Promise<UserStatsResponse> {
+  async getGenderCounts(): Promise<GenderTotal> {
     const pipeline = [
       {
         $group: {

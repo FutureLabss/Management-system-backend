@@ -49,7 +49,7 @@ export class AdminProfileService implements OnModuleInit {
           const adminUser = new this.authModel({
             email: this.configService.get('DEFAULT_ADMIN', 'admin10@email.com'),
             fullName: 'admin',
-            password: this.configService.get('DEFAULT_PASSWORD', 'password10 '),
+            password: this.configService.get('DEFAULT_PASSWORD', 'password10'),
             role: Role.ADMIN,
             phoneNumber: '09045678902',
           });
