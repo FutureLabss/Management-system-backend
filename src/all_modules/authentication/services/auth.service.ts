@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 import { ServiceException } from 'src/core/exceptions/service.exception';
 import { compareSync } from 'bcrypt';
 import { LoginDto } from '../schema/dto/login.dto';
-import { AuthResponse, AuthUser } from '../schema/entity/login.entity';
+import { AuthResponse, AuthUser, UpdatedUserResponse } from '../schema/entity/login.entity';
 
 @Injectable()
 export class AuthService {
@@ -41,9 +41,14 @@ export class AuthService {
       role:user.role
     };
     const accessToken = await this.jwtService.signAsync(payload);
+    // const refreshToken = await this.jwtService.sign()
+    
     return {
       ...payload,
       token: accessToken,
     };
   }
-}
+
+    
+  }
+

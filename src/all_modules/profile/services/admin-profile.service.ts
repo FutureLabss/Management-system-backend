@@ -96,6 +96,7 @@ export class AdminProfileService implements OnModuleInit {
   }
 
   async getAllUsers(filters: Filter):Promise<PaginatedResponse<UserResponse>> {
+   ;
     const {page, pageSize, ...otherFilters} = filters
     return await this.profileModel
       .find({ ...otherFilters})
@@ -165,9 +166,9 @@ export class AdminProfileService implements OnModuleInit {
              userProfile.id ,
             { department, profilePicture },
           )
-          .then(() => {
+          .then((result) => {
             const updatedUser: UpdatedUserResponse = {
-              message: `The details for "${updated.fullName}" has been updated successfully`,
+              message: `The details for '${updated.fullName}' has been updated successfully`,
             };
             return updatedUser;
           });

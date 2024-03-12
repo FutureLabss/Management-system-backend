@@ -1,7 +1,9 @@
 import { Controller, HttpException, Get} from "@nestjs/common";
 import { StatisticsService } from "../services/statistics.service";
+import { ApiTags } from "@nestjs/swagger";
 
 
+@ApiTags('statistics')
 @Controller('')
 export class StatisticsController {
     constructor(private statisticsService: StatisticsService) {}
