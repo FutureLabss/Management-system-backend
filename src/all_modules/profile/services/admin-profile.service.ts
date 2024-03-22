@@ -8,7 +8,7 @@ import mongoose from 'mongoose';
 import { Profile, ProfileDocument } from '../model/profile.model';
 import { CreateUserDto } from '../schema/dto/create-user.dto';
 import { ServiceException } from 'src/core/exceptions/service.exception';
-import { UpdateUserDto } from '../schema/dto/update-user.dto';
+import { UpdateUserDto} from '../schema/dto/update-user.dto';
 import {
   Auth,
   AuthDocument,
@@ -26,7 +26,7 @@ import {
 import { Role } from 'src/all_modules/authentication/schema/enum/auth.enum';
 import { ConfigService } from '@nestjs/config';
 import { PaginateModel } from 'src/core/helpers/pagination';
-import { PaginatedResponse } from 'src/core/entities/response.entities';
+import { PaginatedResponse } from 'src/core/entities/response.entity';
 import { EmailService } from 'src/all_modules/email/services/email.service';
 
 @Injectable()
@@ -42,12 +42,12 @@ export class AdminProfileService implements OnModuleInit {
   async onModuleInit() {
     return this.authModel
       .findOne({
-        email: this.configService.get('DEFAULT_ADMIN', 'admin10@email.com'),
+        email: this.configService.get('DEFAULT_ADMIN', 'admin10@gmail.com'),
       })
       .then(async (existingUser) => {
         if (!existingUser) {
           const adminUser = new this.authModel({
-            email: this.configService.get('DEFAULT_ADMIN', 'admin10@email.com'),
+            email: this.configService.get('DEFAULT_ADMIN', 'admin10@gmail.com'),
             fullName: 'admin',
             password: this.configService.get('DEFAULT_PASSWORD', 'password10'),
             role: Role.ADMIN,
@@ -62,6 +62,8 @@ export class AdminProfileService implements OnModuleInit {
 
   async register(createUserDto: CreateUserDto): Promise<AuthUser> {
     const token = Math.floor(1000 + Math.random() * 9000).toString();
+    const subject = 'Welcome to ClockIn App!';
+    const emailTemplate = 'email-template.ejs';
     const userPassword = createUserDto.email.split('@')[0] + Math.floor(10 + Math.random() * 5);
     const { department, ...userDto } = createUserDto;
     return await this.authModel
@@ -90,7 +92,7 @@ export class AdminProfileService implements OnModuleInit {
           email: newUser.email,
           role: newUser.role,
         };
-        await this.emailService.sendUserWelcome(newUserData, token);
+        await this.emailService.sendEmail(newUserData, token, subject, emailTemplate);
         return response;
       });
   }
@@ -103,6 +105,7 @@ export class AdminProfileService implements OnModuleInit {
       .populate({ path: 'userId' })
       .paginate({ page, limit: pageSize })
       .then((allUsers) => {
+        console.log(allUsers)
         const data = allUsers.data.map((user) => {
           const auth = user.userId as AuthDocument;
           return <UserResponse>{
@@ -214,4 +217,5 @@ export class AdminProfileService implements OnModuleInit {
       });
     });
   }
+
 }

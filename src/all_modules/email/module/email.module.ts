@@ -6,10 +6,14 @@ import { Global, Module } from '@nestjs/common';
 import { join } from 'path';
 import { ConfigService } from '@nestjs/config';
 import { EmailService } from '../services/email.service';
+import { MongooseModule } from '@nestjs/mongoose';
+import { EmailSchema, ForgotPassword } from '../model/email.model';
+import { Auth, AuthSchema } from 'src/all_modules/authentication/model/auth.model';
 
 @Global()
 @Module({
   imports: [
+    MongooseModule.forFeature([{ name: ForgotPassword.name, schema: EmailSchema }]),
     MailerModule.forRootAsync({
       useFactory: async (config: ConfigService) => ({
         transport: {

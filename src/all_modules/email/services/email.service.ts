@@ -8,7 +8,7 @@ import { IEmail } from 'src/all_modules/profile/schema/interface/profile.interfa
 export class EmailService {
   constructor(private mailerService: MailerService) {}
 
-  async sendUserWelcome(user: IEmail, token: string) {
+  async sendEmail(user: IEmail, token: string, subject: string, emailTemplate: string) {
     const confirmation_url = `example.com/auth/confirm?token=${token}`;
   
 
@@ -16,8 +16,8 @@ export class EmailService {
     await this.mailerService.sendMail({
       to: user.email,
       from: '"Support Team" <support@example.com>',
-      subject: 'Welcome to ClockIn App!',
-      template: 'email-template.ejs', 
+      subject: subject,
+      template: emailTemplate, 
       context: { 
         name: user.fullName,
         password: user.password,

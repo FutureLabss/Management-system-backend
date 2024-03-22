@@ -1,6 +1,8 @@
 import { Transform } from 'class-transformer';
-import { IsNumber, IsOptional, IsString } from 'class-validator';
-import { Gender } from 'src/all_modules/authentication/schema/enum/auth.enum';
+import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
+import { Gender, Role } from 'src/all_modules/authentication/schema/enum/auth.enum';
+import { UserTypeSelection } from '../enum/userProfile.enum';
+import { ApiProperty } from '@nestjs/swagger';
 
 export interface IUser {
   fullName: string;
@@ -18,10 +20,12 @@ export interface IAdminUserUpdate {
   profilePicture?: string;
 }
 
-export interface IEmail {
+export interface IPassword{
   fullName: string;
-  password: string;
   email: string;
+}
+export interface IEmail extends IPassword{
+  password: string | number;
 }
 export class Pagination {
   @Transform(({ value }) => parseInt(value))
@@ -35,7 +39,18 @@ export class Pagination {
 }
 
 export class Filter extends Pagination {
+
+  @ApiProperty({description:"kjhwhkhwk"})
   @IsString()
   @IsOptional()
   department: string;
+  @IsString()
+  @IsOptional()
+  fullName: string;
+  @IsEnum(UserTypeSelection)
+  @IsOptional()
+  userType: UserTypeSelection
+  @IsEnum(Gender)
+  @IsOptional()
+  gender: Gender
 }

@@ -11,5 +11,6 @@ export class UpdatedUserResponse{
   message:string
 }
 export class AuthResponse extends AuthUser {
-  token: string;
+  accessToken: string| Promise<string>;
+  refreshToken: string
 }

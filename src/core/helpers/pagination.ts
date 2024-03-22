@@ -1,5 +1,5 @@
 import { HydratedDocument, Model, QueryWithHelpers } from 'mongoose';
-import { PaginatedResponse } from '../entities/response.entities';
+import { PaginatedResponse } from '../entities/response.entity';
 interface PaginateQueryParams {
   limit?: number;
   page?: number;

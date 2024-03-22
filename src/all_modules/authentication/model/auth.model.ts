@@ -24,8 +24,9 @@ export class Auth {
   isVerified: boolean;
   @Prop({ default: true })
   isActive: boolean;
-  @Exclude()
-  refresh_token?: string;
+  @Prop()
+  refreshToken: string;
+  
 }
 
 export const AuthSchema = SchemaFactory.createForClass(Auth);

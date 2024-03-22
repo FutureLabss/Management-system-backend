@@ -7,15 +7,16 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Auth, AuthSchema } from '../model/auth.model';
 import { JwtStrategy } from '../../../core/strategies/jwt.strategy';
 import jwtConstants from 'src/core/config/constants';
+import { EmailSchema, ForgotPassword } from 'src/all_modules/email/model/email.model';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Auth.name, schema: AuthSchema }]),
+    MongooseModule.forFeature([{ name: ForgotPassword.name, schema: EmailSchema }]),
 
     PassportModule,
     JwtModule.register({
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '3hrs' },
     }),
   ],
   controllers: [AuthController],
